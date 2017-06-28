@@ -51,19 +51,18 @@ static size_t func(void *ptr, size_t size, size_t nmemb, void *d)
 
 static void _test(int t)
 {
-        int i = 0;
-check:;
-        autofree struct string *temp = NULL;
-        temp = string_alloc(0);
-        string_cat(temp, qlkey("loop"));
-        debug("%s\n", temp->ptr);
-
         if(t < 10) goto finish;
-  
-        autofree struct string *t2 = NULL;
+        {
+                int i = 0;
+        check:;
+                autofree struct string *temp = NULL;
+                temp = string_alloc(0);
+                string_cat(temp, qlkey("loop"));
+                debug("%s\n", temp->ptr);
 
-        i++;
-        if(i < 10) goto check;
+                i++;
+                if(i < 10) goto check;
+        }
 
         finish:;
 }
@@ -102,7 +101,7 @@ int main(int argc, char **argv)
 //
 //         sleep(60);
 //         goto begin;
-        _test(5);
+        _test(10);
         cache_free();
         dim_memory();
 
