@@ -49,59 +49,40 @@ static size_t func(void *ptr, size_t size, size_t nmemb, void *d)
         return size * nmemb;
 }
 
-static void _test(int t)
-{
-        if(t < 10) goto finish;
-        {
-                int i = 0;
-        check:;
-                autofree struct string *temp = NULL;
-                temp = string_alloc(0);
-                string_cat(temp, qlkey("loop"));
-                debug("%s\n", temp->ptr);
-
-                i++;
-                if(i < 10) goto check;
-        }
-
-        finish:;
-}
-
 int main(int argc, char **argv)
 {
-// begin:;
-//         struct smart_object *data = smart_object_from_json_file("res/bigo_local.json", FILE_INNER);
-//         CURL *curl;
-//         CURLcode res;
-//
-//         curl = curl_easy_init();
-//         if(curl) {
-//                 struct string *temp = string_alloc(0);
-//                 string_cat(temp, qlkey("http://ipinfo.io/ip"));
-//                 curl_easy_setopt(curl, CURLOPT_URL, temp->ptr);
-//                 string_free(temp);
-//
-//                 /* example.com is redirected, so we tell libcurl to follow redirection */
-//                 curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST,"GET");
-//                 curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-//                 curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, func);
-//                 int num;
-//                 curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)data);
-//
-//                 /* Perform the request, res will get the return code */
-//                 res = curl_easy_perform(curl);
-//                 /* Check for errors */
-//                 if(res != CURLE_OK)
-//                         fprintf(stderr, "curl_easy_perform() failed: %s\n",
-//                 curl_easy_strerror(res));
-//
-//                 /* always cleanup */
-//                 curl_easy_cleanup(curl);
-//         }
-//
-//         sleep(60);
-//         goto begin;
-        _test(10);
+begin:;
+        struct smart_object *data = smart_object_from_json_file("res/bigo_local.json", FILE_INNER);
+        CURL *curl;
+        CURLcode res;
+
+        curl = curl_easy_init();
+        if(curl) {
+                struct string *temp = string_alloc(0);
+                string_cat(temp, qlkey("http://ipinfo.io/ip"));
+                curl_easy_setopt(curl, CURLOPT_URL, temp->ptr);
+                string_free(temp);
+
+                /* example.com is redirected, so we tell libcurl to follow redirection */
+                curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST,"GET");
+                curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, func);
+                int num;
+                curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)data);
+
+                /* Perform the request, res will get the return code */
+                res = curl_easy_perform(curl);
+                /* Check for errors */
+                if(res != CURLE_OK)
+                        fprintf(stderr, "curl_easy_perform() failed: %s\n",
+                curl_easy_strerror(res));
+
+                /* always cleanup */
+                curl_easy_cleanup(curl);
+        }
+
+        sleep(60);
+        goto begin;
         cache_free();
         dim_memory();
 
