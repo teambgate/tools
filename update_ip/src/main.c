@@ -59,7 +59,7 @@ check:;
         debug("%s\n", temp->ptr);
 
         if(t < 10) goto finish;
-
+  
         autofree struct string *t2 = NULL;
 
         i++;
