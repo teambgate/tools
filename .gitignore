@@ -1,0 +1,15 @@
+build
+res
+output
+apk_signing/build
+apk_signing/res
+image_encrypt/build
+image_encrypt/build
+keystore_generator/build
+keystore_generator/res
+keystore_generator/output
+res_encrypt/build
+res_encrypt/res
+res_encrypt/output
+update_ip/build
+update_ip/res
