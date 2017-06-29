@@ -14,8 +14,8 @@
 #define head_key "0928120358194734123490234902384023412398471928374"
 #define xml_key "PiPoGame2016"
 
-static struct smart_object *config = NULL;
-static struct smart_object *keystore_config = NULL;
+static struct sobj *config = NULL;
+static struct sobj *keystore_config = NULL;
 static struct string *old_package = NULL;
 
 static int apk_counts = 0;
@@ -108,8 +108,8 @@ static int __encrypt_assets(const char *fpath, const struct stat *sb, int tflag,
 
 static void __replace_link_config()
 {
-        struct smart_object *object_config = smart_object_get_object(config, qlkey("config"), SMART_GET_REPLACE_IF_WRONG_TYPE);
-        struct string *content = smart_object_to_json(object_config);
+        struct sobj *object_config = sobj_get_obj(config, qlkey("config"), RPL_TYPE);
+        struct string *content = sobj_to_json(object_config);
 
         debug("replace game config success \n%s\n\n", content->ptr);
 
@@ -132,14 +132,14 @@ static void __replace_strings()
 {
         struct xml_element *root = xml_parse("output/temp/res/values/strings.xml", FILE_INNER);
 
-        struct smart_object *strings = smart_object_get_object(config, qlkey("strings"), SMART_GET_REPLACE_IF_WRONG_TYPE);
+        struct sobj *strings = sobj_get_obj(config, qlkey("strings"), RPL_TYPE);
 
         struct array *strings_key = array_alloc(sizeof(struct bytes *), ORDERED);
         map_get_list_key(strings->data, strings_key);
         struct bytes **key;
         array_for_each(key, strings_key) {
                 struct string *k = string_alloc_chars((*key)->ptr, (*key)->len);
-                struct string *val = smart_object_get_string(strings, (*key)->ptr, (*key)->len, SMART_GET_REPLACE_IF_WRONG_TYPE);
+                struct string *val = sobj_get_str(strings, (*key)->ptr, (*key)->len, RPL_TYPE);
 
                 struct xml_element *e = xml_find_deep(root, "string", "name", k->ptr);
                 if(e) {
@@ -168,7 +168,7 @@ static void __fix_package(const char *path)
         struct string *old_slashpackage = string_alloc_chars(old_package->ptr, old_package->len);
         string_replace(old_slashpackage, ".", "/");
 
-        struct string *package = smart_object_get_string(config, qlkey("package"), SMART_GET_REPLACE_IF_WRONG_TYPE);
+        struct string *package = sobj_get_str(config, qlkey("package"), RPL_TYPE);
         struct string *slashpackage = string_alloc(0);
         string_cat_string(slashpackage, package);
         string_replace(slashpackage, ".", "/");
@@ -263,14 +263,14 @@ static void __fix_version_code()
         struct xml_element *root = xml_parse("output/temp/AndroidManifest.xml", FILE_INNER);
         struct xml_element *manifest = xml_find(root, "manifest", 0);
 
-        struct string *android_version_code = smart_object_get_string(config, qlkey("android_version_code"), SMART_GET_REPLACE_IF_WRONG_TYPE);
+        struct string *android_version_code = sobj_get_str(config, qlkey("android_version_code"), RPL_TYPE);
         string_trim(android_version_code);
         if(android_version_code->len) {
                 xml_element_set_attribute(manifest, qlkey("android:versionCode"), qskey(android_version_code));
                 debug("replace version code : %s ...\n", android_version_code->ptr);
         }
 
-        struct string *android_version_name = smart_object_get_string(config, qlkey("android_version_name"), SMART_GET_REPLACE_IF_WRONG_TYPE);
+        struct string *android_version_name = sobj_get_str(config, qlkey("android_version_name"), RPL_TYPE);
         string_trim(android_version_name);
         if(android_version_name->len) {
                 xml_element_set_attribute(manifest, qlkey("android:versionName"), qskey(android_version_name));
@@ -329,14 +329,14 @@ static int __resign(const char *fpath, const struct stat *sb, int tflag, struct 
                 struct string *name = string_alloc_chars((char*)fpath, strlen(fpath));
                 if(string_contain(name, ".keystore")) {
 
-                        struct string *alias = smart_object_get_string(keystore_config, qlkey("alias"), SMART_GET_REPLACE_IF_WRONG_TYPE);
+                        struct string *alias = sobj_get_str(keystore_config, qlkey("alias"), RPL_TYPE);
                         string_trim(alias);
                         if(alias->len == 0) {
                                 debug("\nE: please provide keystore alias\n");
                                 exit(EXIT_FAILURE);
                         }
 
-                        struct string *pass = smart_object_get_string(keystore_config, qlkey("pass"), SMART_GET_REPLACE_IF_WRONG_TYPE);
+                        struct string *pass = sobj_get_str(keystore_config, qlkey("pass"), RPL_TYPE);
                         string_trim(pass);
                         if(pass->len == 0) {
                                 debug("\nE: please provide keystore password\n");
@@ -366,14 +366,14 @@ static int __print_keyhash(const char *fpath, const struct stat *sb, int tflag, 
                 struct string *name = string_alloc_chars((char*)fpath, strlen(fpath));
                 if(string_contain(name, ".keystore")) {
 
-                        struct string *alias = smart_object_get_string(keystore_config, qlkey("alias"), SMART_GET_REPLACE_IF_WRONG_TYPE);
+                        struct string *alias = sobj_get_str(keystore_config, qlkey("alias"), RPL_TYPE);
                         string_trim(alias);
                         if(alias->len == 0) {
                                 debug("\nE: please provide keystore alias\n");
                                 exit(EXIT_FAILURE);
                         }
 
-                        struct string *pass = smart_object_get_string(keystore_config, qlkey("pass"), SMART_GET_REPLACE_IF_WRONG_TYPE);
+                        struct string *pass = sobj_get_str(keystore_config, qlkey("pass"), RPL_TYPE);
                         string_trim(pass);
                         if(pass->len == 0) {
                                 debug("\nE: please provide keystore password\n");
@@ -420,8 +420,8 @@ static int compress()
 
 int main(int argc, char **argv)
 {
-        config = smart_object_from_json_file("res/config.json", FILE_INNER);
-        keystore_config = smart_object_from_json_file("res/keystore/info.json", FILE_INNER);
+        config = sobj_from_json_file("res/config.json", FILE_INNER);
+        keystore_config = sobj_from_json_file("res/keystore/info.json", FILE_INNER);
         old_package = string_alloc(0);
         int flags = 0;
 
@@ -526,7 +526,7 @@ int main(int argc, char **argv)
                 }
         } while(1);
 
-        smart_object_free(config);
+        sobj_free(config);
         string_free(old_package);
         exit(EXIT_SUCCESS);
 }

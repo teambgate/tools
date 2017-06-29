@@ -35,7 +35,7 @@ static size_t func(void *ptr, size_t size, size_t nmemb, void *d)
 
         if(is_ip(server_primary_host->ptr)) {
                 debug("%s\n", ptr);
-                struct string *content = smart_object_to_json(data);
+                struct string *content = sobj_to_json(data);
 
                 struct file *file = file_open("/cygdrive/d/manh_drive/bigo69/bigo_local.json", "w", FILE_INNER);
                 file_write(file, content->ptr, content->len);
@@ -52,7 +52,7 @@ static size_t func(void *ptr, size_t size, size_t nmemb, void *d)
 int main(int argc, char **argv)
 {
 begin:;
-        struct smart_object *data = smart_object_from_json_file("res/bigo_local.json", FILE_INNER);
+        struct sobj *data = sobj_from_json_file("res/bigo_local.json", FILE_INNER);
         CURL *curl;
         CURLcode res;
 

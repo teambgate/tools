@@ -29,10 +29,10 @@ int main(int argc, char **argv)
         system("mkdir -p res/keystore");
 
         char line[BUFFER_LEN];
-        struct smart_object *in = smart_object_alloc();
+        struct sobj *in = sobj_alloc();
 
         #define ADD_INFO(val, log, key) \
-        struct string *val = smart_object_get_string(in, qlkey(key), SMART_GET_REPLACE_IF_WRONG_TYPE); \
+        struct string *val = sobj_get_str(in, qlkey(key), RPL_TYPE); \
         if(val->len == 0) {       \
                 memset(line, 0, BUFFER_LEN);    \
                 app_log(log);   \
@@ -90,7 +90,7 @@ int main(int argc, char **argv)
                 /* Read the output a line at a time - output it. */
                 while (fgets(path, sizeof(path)-1, fp) != NULL) {
                         debug("key hash %s\n", path);
-                        struct string *val = smart_object_get_string(in, qlkey("keyhash"), SMART_GET_REPLACE_IF_WRONG_TYPE);
+                        struct string *val = sobj_get_str(in, qlkey("keyhash"), RPL_TYPE);
                         val->len = 0;
                         string_cat(val, path, strlen(path)-1);
                 }
@@ -101,13 +101,13 @@ int main(int argc, char **argv)
         }
 
 
-        struct string *content = smart_object_to_json(in);
+        struct string *content = sobj_to_json(in);
 
         struct file *f = file_open("res/keystore/info.json", "w", FILE_INNER);
         file_write(f, content->ptr, content->len);
         file_close(f);
         string_free(content);
 
-        smart_object_free(in);
+        sobj_free(in);
         return 1;
 }
